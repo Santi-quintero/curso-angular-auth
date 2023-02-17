@@ -1,37 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Users } from '@models/users';
+import { AuthServiceService } from '@services/auth-service.service';
+import { UsersService } from '@services/users.service';
 
 import { DataSourceUser } from './data-source';
 
 @Component({
   selector: 'app-users-table',
-  templateUrl: './users-table.component.html'
+  templateUrl: './users-table.component.html',
 })
-export class UsersTableComponent  {
-
+export class UsersTableComponent implements OnInit {
   dataSource = new DataSourceUser();
   columns: string[] = ['id', 'avatar', 'name', 'email'];
 
-  constructor() {
-    this.dataSource.init([
-      {
-        id: 1,
-        name: 'User 1',
-        email: 'mail@mail.com',
-        avatar: 'https://api.lorem.space/image/face?w=150&h=150'
-      },
-      {
-        id: 2,
-        name: 'User 2',
-        email: 'mail2@mail.com',
-        avatar: 'https://api.lorem.space/image/face?w=150&h=150'
-      },
-      {
-        id: 3,
-        name: 'User 3',
-        email: 'mail3@mail.com',
-        avatar: 'https://api.lorem.space/image/face?w=150&h=150'
-      }
-    ]);
+  public user: Users | null = null;
+
+  constructor(
+    private userSrv: UsersService,
+    private authSrv: AuthServiceService
+  ) {
+    this.loadData();
+  }
+  ngOnInit(): void {
+    this.prueba();
   }
 
+  public async loadData() {
+    const response: Users[] = await this.userSrv.getUsers();
+    this.dataSource.init(response);
+  }
+  public async prueba() {
+    this.authSrv.user$.subscribe((response) => {
+      this.user = response;
+    });
+  }
 }
